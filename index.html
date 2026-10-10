@@ -1,0 +1,1691 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoH 3D Immersive Competency Academy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #0284c7;
+            --primary-glow: rgba(2, 132, 199, 0.4);
+            --secondary: #06b6d4;
+            --success: #10b981;
+            --error: #ef4444;
+            --bg-deep: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --mesh-1: rgba(2, 132, 199, 0.15);
+            --mesh-2: rgba(6, 182, 212, 0.1);
+            --option-bg: rgba(15, 23, 42, 0.6);
+            --option-hover: rgba(30, 41, 59, 0.9);
+            --explanation-bg: rgba(15, 23, 42, 0.8);
+            --badge-bg: rgba(2, 132, 199, 0.15);
+            --badge-border: rgba(56, 189, 248, 0.3);
+            --badge-color: #38bdf8;
+            --header-gradient: linear-gradient(135deg, rgba(2, 132, 199, 0.8), rgba(6, 182, 212, 0.8));
+        }
+
+        [data-theme="light"] {
+            --primary: #0284c7;
+            --primary-glow: rgba(2, 132, 199, 0.2);
+            --secondary: #0ea5e9;
+            --success: #16a34a;
+            --error: #dc2626;
+            --bg-deep: #f1f5f9;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-border: rgba(226, 232, 240, 0.8);
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --mesh-1: rgba(2, 132, 199, 0.08);
+            --mesh-2: rgba(14, 165, 233, 0.05);
+            --option-bg: rgba(248, 250, 252, 0.9);
+            --option-hover: rgba(241, 245, 249, 1);
+            --explanation-bg: rgba(241, 245, 249, 0.9);
+            --badge-bg: rgba(2, 132, 199, 0.1);
+            --badge-border: rgba(2, 132, 199, 0.2);
+            --badge-color: #0284c7;
+            --header-gradient: linear-gradient(135deg, rgba(2, 132, 199, 0.9), rgba(14, 165, 233, 0.9));
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            perspective: 1200px;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* Ambient 3D Animated Background Elements */
+        .bg-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at 20% 30%, var(--mesh-1) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, var(--mesh-2) 0%, transparent 40%);
+            z-index: -1;
+            animation: meshFloat 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes meshFloat {
+            0% { transform: scale(1) translateY(0px); }
+            100% { transform: scale(1.05) translateY(-15px); }
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, background 0.3s ease;
+            z-index: 10;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* 3D Glassmorphic App Wrapper */
+        .app-container {
+            width: 92%;
+            max-width: 820px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15),
+                        0 0 40px var(--primary-glow),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            margin: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.1, 0.9, 0.2, 1), box-shadow 0.5s ease, background 0.4s ease, border-color 0.4s ease;
+            position: relative;
+        }
+
+        .app-container:hover {
+            box-shadow: 0 35px 70px rgba(0, 0, 0, 0.25),
+                        0 0 60px rgba(2, 132, 199, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        /* Futuristic Header */
+        header {
+            background: var(--header-gradient);
+            color: white;
+            padding: 24px 30px;
+            text-align: center;
+            border-bottom: 1px solid var(--card-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 6s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateY(-100%) rotate(45deg); }
+            100% { transform: translateY(100%) rotate(45deg); }
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        header p {
+            margin: 6px 0 0;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+        }
+
+        .content-area {
+            padding: 32px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            transform: translateZ(20px);
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            flex-direction: column;
+            gap: 24px;
+            animation: screenEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes screenEntrance {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Welcome Screen 3D Card */
+        .welcome-card {
+            text-align: center;
+            padding: 20px 10px;
+        }
+
+        .welcome-card h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--text-main), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-card p {
+            color: var(--text-sub);
+            max-width: 540px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+            font-size: 1.05rem;
+        }
+
+        /* 3D Tactile Buttons */
+        .btn {
+            background: linear-gradient(135deg, #0284c7, #0284c7);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            align-self: center;
+            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.3),
+                        inset 0 2px 0 rgba(255, 255, 255, 0.3),
+                        inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+            transform: translateY(0);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(2, 132, 199, 0.45),
+                        inset 0 2px 0 rgba(255, 255, 255, 0.4),
+                        inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #0369a1, #0284c7);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 5px 15px rgba(2, 132, 199, 0.3);
+        }
+
+        /* Quiz Header */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 14px;
+        }
+
+        .badge {
+            background: var(--badge-bg);
+            color: var(--badge-color);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--badge-border);
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1.5;
+            margin: 0;
+            color: var(--text-main);
+        }
+
+        /* 3D Option Buttons */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: var(--option-bg);
+            border: 1px solid var(--card-border);
+            padding: 16px 20px;
+            text-align: left;
+            border-radius: 14px;
+            font-size: 1.02rem;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-main);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transform: translateZ(0);
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: var(--option-hover);
+            border-color: rgba(2, 132, 199, 0.6);
+            transform: translateY(-2px) translateZ(5px);
+            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.15);
+        }
+
+        .option-btn.correct {
+            background: rgba(16, 185, 129, 0.15) !important;
+            border-color: var(--success) !important;
+            color: var(--success) !important;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2) !important;
+        }
+
+        .option-btn.incorrect {
+            background: rgba(239, 68, 68, 0.15) !important;
+            border-color: var(--error) !important;
+            color: var(--error) !important;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2) !important;
+        }
+
+        /* 3D Glassmorphic Explanation Box */
+        .explanation-box {
+            background: var(--explanation-bg);
+            border-left: 4px solid var(--primary);
+            border-top: 1px solid var(--card-border);
+            border-right: 1px solid var(--card-border);
+            border-bottom: 1px solid var(--card-border);
+            padding: 18px;
+            border-radius: 0 14px 14px 0;
+            font-size: 0.98rem;
+            line-height: 1.6;
+            color: var(--text-sub);
+            display: none;
+            animation: expandIn 0.3s ease forwards;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .explanation-box.show {
+            display: block;
+        }
+
+        @keyframes expandIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .explanation-box strong {
+            color: var(--primary);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .quiz-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 6px;
+        }
+
+        /* Results Screen */
+        .results-card {
+            text-align: center;
+            padding: 20px 10px;
+        }
+
+        .score-display {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 15px 0;
+            text-shadow: 0 10px 30px rgba(2, 132, 199, 0.2);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+<button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Switch Light/Dark Mode">
+    🌙
+</button>
+
+<div class="bg-mesh"></div>
+
+<div class="app-container" id="appContainer">
+    <header>
+        <h1>MoH Competency Academy</h1>
+        <p>Advanced 3D Immersive Behavioral & Technical Training Platform</p>
+    </header>
+
+    <div class="content-area">
+        
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="screen active">
+            <div class="welcome-card">
+                <h2>Dr. Solomon Abebe</h2>
+                <p>
+                    Step into the intelligent 3D assessment module. Master all 100 scenario-based multiple-choice questions complete with comprehensive rationale explanations mapped directly to Ministry of Health competencies.
+                </p>
+                <button class="btn" onclick="startQuiz()">Launch Assessment (100 Questions)</button>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen">
+            <div class="quiz-header">
+                <span id="question-counter" class="badge">Question 1 of 100</span>
+                <span id="score-counter" style="color: var(--primary); font-weight: 700;">Score: 0</span>
+            </div>
+
+            <h3 id="question-container" class="question-text">Loading question...</h3>
+
+            <div id="options-container" class="options-list">
+                <!-- Options injected dynamically -->
+            </div>
+
+            <div id="explanation-container" class="explanation-box">
+                <strong>Smart Rationale & Explanation:</strong> 
+                <span id="explanation-text"></span>
+            </div>
+
+            <div class="quiz-footer">
+                <button id="next-btn" class="btn hidden" onclick="nextQuestion()">Next Question →</button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="screen">
+            <div class="results-card">
+                <h2>Assessment Concluded</h2>
+                <p style="color: var(--text-sub);">Your Immersive Final Score:</p>
+                <div id="final-score" class="score-display">0 / 100</div>
+                <p id="result-message" style="color: var(--text-sub); margin-bottom: 30px; font-size: 1.05rem; line-height: 1.5;"></p>
+                <button class="btn" onclick="restartQuiz()">Restart Intelligent Assessment</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const questionsData = [
+        {
+            q: "According to the Federal Civil Service Commission reform framework, what is the main objective of establishing a competency assessment and certification system?",
+            options: [
+                "To reduce the overall number of public servants in federal ministries",
+                "To streamline service delivery through a competent and certified workforce",
+                "To transition all physical health posts directly into digital-only primary care centers",
+                "To replace technical qualifications entirely with subjective behavioral evaluations"
+            ],
+            answer: 1,
+            explanation: "The primary goal of the civil service reform initiative in Ethiopia is to build a high-performing public service by ensuring that employees are evaluated and certified based on demonstrated competencies, thereby streamlining service delivery across government institutions."
+        },
+        {
+            q: "In competency-based learning frameworks, which domain of Bloom's Taxonomy addresses intellectual abilities, reasoning, and problem-solving?",
+            options: [
+                "Affective domain",
+                "Psychomotor domain",
+                "Cognitive domain",
+                "Behavioral domain"
+            ],
+            answer: 2,
+            explanation: "The cognitive domain encompasses intellectual capabilities, knowledge acquisition, comprehension, critical thinking, and structured problem-solving."
+        },
+        {
+            q: "A health officer is undergoing a performance review where their personal values, motivation, professional ethics, and operational attitudes are evaluated. Which learning domain is being assessed?",
+            options: [
+                "Cognitive domain",
+                "Affective domain",
+                "Psychomotor domain",
+                "Skill domain"
+            ],
+            answer: 1,
+            explanation: "The affective domain focuses on feelings, attitudes, values, emotional management, motivation, and professional behavior in the workplace."
+        },
+        {
+            q: "The Psychomotor domain in public service competency frameworks primarily measures:",
+            options: [
+                "Theoretical knowledge of medical procedures",
+                "Physical skills, technical abilities, tool usage, and coordination",
+                "Emotional resilience under administrative pressure",
+                "Strategic visioning and policy formulation"
+            ],
+            answer: 1,
+            explanation: "The psychomotor domain focuses on physical movement, motor skills, hand-eye coordination, technical execution, and the proficient use of tools or specialized equipment."
+        },
+        {
+            q: "Which level represents the highest complexity in the Revised Bloom’s Cognitive Taxonomy?",
+            options: [
+                "Applying",
+                "Analyzing",
+                "Evaluating",
+                "Creating"
+            ],
+            answer: 3,
+            explanation: "In the Revised Bloom's Taxonomy, the cognitive hierarchy progresses from Remembering to Understanding, Applying, Analyzing, Evaluating, and finally Creating at the highest level."
+        },
+        {
+            q: "Under the Affective Domain hierarchy, which level involves integrating values into a system and acting consistently in accordance with them?",
+            options: [
+                "Receiving",
+                "Responding",
+                "Valuing",
+                "Characterizing"
+            ],
+            answer: 3,
+            explanation: "Characterization (or internalizing values) is the highest level of the affective domain, where an individual acts consistently according to an internalized set of values, shaping their overall character and lifestyle."
+        },
+        {
+            q: "In the Psychomotor Domain hierarchy, what does the 'Mechanism' level represent?",
+            options: [
+                "Early stages in learning a complex skill through imitation",
+                "Learned responses that have become habitual and performed with confidence",
+                "Modifying movement patterns to meet special requirements",
+                "Creating new movement patterns to fit a particular situation"
+            ],
+            answer: 1,
+            explanation: "Mechanism refers to intermediate stages in learning a physical skill where the learned movement patterns have become habitual and can be performed with a degree of confidence and proficiency."
+        },
+        {
+            q: "What is the fundamental distinction between Technical Competency and Behavioral Competency?",
+            options: [
+                "Technical competency defines how a task is performed; behavioral competency defines what task is assigned.",
+                "Technical competency focuses on job-specific knowledge and skills ('what to do'); behavioral competency focuses on mindset, attitude, and work culture ('how to do it').",
+                "Behavioral competency is only evaluated for leaders, while technical competency applies solely to technicians.",
+                "Technical competency is unmeasurable, whereas behavioral competency is evaluated through computerized tests."
+            ],
+            answer: 1,
+            explanation: "Technical competency encompasses the job-specific skills and knowledge required to execute job duties ('what to do'), whereas behavioral competency addresses personal attributes, communication styles, values, and work culture ('how to do it')."
+        },
+        {
+            q: "How are competency assessment results generated under the Federal Civil Service Commission framework?",
+            options: [
+                "Through paper-based manual evaluations reviewed after six months",
+                "Via computer-based testing with immediate results provided",
+                "Through annual peer ratings submitted directly to the Ministry",
+                "By subjective panel interviews conducted at the Woreda level"
+            ],
+            answer: 1,
+            explanation: "Under the civil service reform guidelines, competency assessments are administered via computer-based systems, offering immediate and automated score generation to ensure transparency and efficiency."
+        },
+        {
+            q: "How many designated Technical Competency Units are required for the 'Leader' professional category?",
+            options: [
+                "7 Units",
+                "8 Units",
+                "12 Units",
+                "15 Units"
+            ],
+            answer: 2,
+            explanation: "According to the framework, the Technician level requires 7 units, the Professional level requires 8 units, and the Leader level requires 12 units of technical competencies."
+        },
+        {
+            q: "How many total Behavioral Competency Units are evaluated for the 'Leader' professional category?",
+            options: [
+                "11 Units",
+                "12 Units",
+                "15 Units",
+                "18 Units"
+            ],
+            answer: 2,
+            explanation: "The behavioral competency unit distribution specifies 11 units for Technicians, 12 units for Professionals, and 15 units for Leaders."
+        },
+        {
+            q: "A Lead Executive Officer is aligning the Health Extension Program (HEP) strategic plan with the Health Sector Transformation Plan (HSTP II). Which strategic approach best ensures long-term operational sustainability?",
+            options: [
+                "Developing integrated frameworks that explicitly align institutional goals with local service delivery metrics",
+                "Issuing periodic operational directives instructing Health Extension Workers to increase facility utilization",
+                "Procuring updated diagnostic equipment whenever existing health post infrastructure shows operational wear",
+                "Rebranding health posts to reflect modern community care terminology to enhance public perception"
+            ],
+            answer: 0,
+            explanation: "Strategic planning requires long-range alignment between enterprise-level policies and frontline operational metrics to ensure sustainable and impactful service delivery."
+        },
+        {
+            q: "Which element of the Strategy and Strategic Plan Preparation competency involves examining internal strengths/weaknesses and external opportunities/threats?",
+            options: [
+                "Goal Decomposition",
+                "Environmental Analysis (SWOT/PESTLE)",
+                "Resource Assignment",
+                "Micro-Planning"
+            ],
+            answer: 1,
+            explanation: "Environmental analysis involves assessing internal capacity (SWOT) alongside broader external political, economic, social, and technological conditions (PESTLE) to inform strategic decision-making."
+        },
+        {
+            q: "In strategic planning, ensuring all major objectives meet 'SMART' criteria means they must be:",
+            options: [
+                "Strategic, Meaningful, Actionable, Resourceful, and Tactical",
+                "Specific, Measurable, Achievable, Relevant, and Time-bound",
+                "Systematic, Manageable, Aligned, Robust, and Timely",
+                "Sustainable, Measurable, Adaptive, Rational, and Targeted"
+            ],
+            answer: 1,
+            explanation: "High-quality strategic plans require performance objectives that are Specific, Measurable, Achievable, Relevant, and Time-bound."
+        },
+        {
+            q: "When translating national primary healthcare policies into agrarian Woreda operational plans, which strategy best addresses equity gaps in remote kebele health service coverage?",
+            options: [
+                "Enforcing uniform health post opening hours across all kebeles regardless of pastoral or agrarian movement",
+                "Increasing the frequency of standard reporting templates sent from health posts to the Woreda office",
+                "Reallocating all preventive health budgets toward tertiary hospital referrals",
+                "Adapting service packages through contextualized micro-planning based on local epidemiological profiles"
+            ],
+            answer: 3,
+            explanation: "Effective operational planning requires adapting national guidelines through local micro-planning that accounts for specific community profiles, geographical conditions, and epidemiological needs."
+        },
+        {
+            q: "Breaking down high-level strategic objectives into specific operational tasks, sub-activities, and milestones is called:",
+            options: [
+                "Vision Alignment",
+                "Goal Decomposition",
+                "Resource Procurement",
+                "Environmental Scanning"
+            ],
+            answer: 1,
+            explanation: "Goal decomposition is the systematic breakdown of high-level strategic priorities into manageable tactical tasks, clear operational timelines, and measurable milestones."
+        },
+        {
+            q: "Which of the following is a key performance criterion for effective operational planning?",
+            options: [
+                "Plans strictly avoid any flexibility or adjustments once implemented",
+                "Risks and constraints are systematically identified with explicit mitigation strategies",
+                "Individual accountability structures are omitted to foster collective ownership",
+                "Timelines are kept open-ended to accommodate unscheduled delays"
+            ],
+            answer: 1,
+            explanation: "Sound planning requires identifying risks, constraints, and operational uncertainties early on, alongside clear contingency strategies."
+        },
+        {
+            q: "The process of distributing personnel, budget, technology, and equipment across tasks to balance workload and priorities is known as:",
+            options: [
+                "Resource Sourcing",
+                "Input Sourcing",
+                "Allocation and Assignment",
+                "Governance Auditing"
+            ],
+            answer: 2,
+            explanation: "Resource allocation and assignment involve distributing human, financial, and material inputs efficiently across competing operational tasks."
+        },
+        {
+            q: "Promoting the use of digital tools, electronic medical records, and data analytics to inform clinical and administrative decisions falls under:",
+            options: [
+                "Psychomotor Dexterity",
+                "Technology Utilization",
+                "Market Regulation",
+                "Servanthood"
+            ],
+            answer: 1,
+            explanation: "Technology utilization centers on leveraging software, digital infrastructure, data analytics, and technological tools to enhance organizational processes and decision-making."
+        },
+        {
+            q: "What is a key element of the 'Professional Ethics' technical competency unit?",
+            options: [
+                "Concealing operational failures from external auditors to protect institutional reputation",
+                "Maintaining integrity and transparency in technical reporting, data handling, and communication",
+                "Bypassing legal procurement frameworks to expedite project completion",
+                "Prioritizing personal career advancement over departmental goals"
+            ],
+            answer: 1,
+            explanation: "Professional ethics requires honesty, objective reporting, compliance with regulatory standards, and transparent handling of technical data."
+        },
+        {
+            q: "When a technical supervisor systematically collects performance data, evaluates progress against indicators, and diagnoses root causes of operational gaps, they are performing:",
+            options: [
+                "Strategy Formulation",
+                "Monitoring and Effective Performance",
+                "Market Building",
+                "Emotional Regulation"
+            ],
+            answer: 1,
+            explanation: "Monitoring performance entails systematically tracking key performance indicators, analyzing operational variances, diagnosing underlying causes, and implementing corrective steps."
+        },
+        {
+            q: "Providing timely, evidence-based, clear, and actionable observations on a junior worker's technical output is an example of:",
+            options: [
+                "Discharging Responsibility",
+                "Delivering Constructive Technical Feedback",
+                "Strategic Foresight",
+                "Value-Adding Work"
+            ],
+            answer: 1,
+            explanation: "Constructive technical feedback involves sharing timely, specific, evidence-backed guidance to support skill development and process refinement."
+        },
+        {
+            q: "During annual budget planning, a health department officer notes that short-term projects offer immediate visible results but fail to address long-term public health goals. How should the officer apply strategic thinking?",
+            options: [
+                "Allocate all resources to short-term projects to maximize immediate outputs for performance reports",
+                "Focus exclusively on long-term projects while completely ignoring urgent short-term community needs",
+                "Balance short-term operational needs with long-term goals by prioritizing initiatives with sustainable impact",
+                "Replicate the previous year's budget without making adjustments to avoid administrative friction"
+            ],
+            answer: 2,
+            explanation: "Strategic thinking requires balancing immediate operational mandates with long-term strategic goals to ensure continuous, sustainable public value."
+        },
+        {
+            q: "A core behavioral indicator of Strategic Thinking in the civil service is:",
+            options: [
+                "Focusing strictly on daily outputs without considering broader organizational vision",
+                "Connecting routine daily tasks to broader governmental priorities and long-term societal needs",
+                "Avoiding evidence-based data when making rapid administrative choices",
+                "Delegating all long-term planning responsibilities exclusively to external consultants"
+            ],
+            answer: 1,
+            explanation: "A civil servant demonstrating strategic thinking connects immediate daily responsibilities with broader institutional objectives, government health priorities, and community needs."
+        },
+        {
+            q: "Which action demonstrates strategic thinking when facing external policy changes?",
+            options: [
+                "Resisting policy changes to protect traditional workflows",
+                "Scanning the operating environment to anticipate challenges and adapt program delivery",
+                "Waiting for formal crisis escalations before reviewing program operational efficiency",
+                "Discontinuing current public health initiatives immediately without conducting risk analysis"
+            ],
+            answer: 1,
+            explanation: "Strategic thinkers monitor external dynamics and political contexts to proactively adapt operational models before major disruptions occur."
+        },
+        {
+            q: "Strategic Thinking requires civil servants to balance which two competing demands?",
+            options: [
+                "Public transparency and executive confidentiality",
+                "Short-term operational demands and long-term strategic vision",
+                "Financial frugality and complete budget depletion",
+                "Personal career development and team performance"
+            ],
+            answer: 1,
+            explanation: "Balancing short-term operational deliverables with long-term organizational strategy is a core requirement of the Strategic Thinking competency."
+        },
+        {
+            q: "An administrative office uses a slow, paper-based routine to process client requests, causing significant backlogs. A junior officer proposes a basic digital tracking tool using existing computer equipment, but senior colleagues resist because 'this is not our standard practice.' Which action best reflects strong Innovation competency?",
+            options: [
+                "Abandon the proposed solution completely to maintain harmonious workplace relationships",
+                "Pilot the digital tracking tool on a small scale, gather performance data, and refine it",
+                "Force immediate full-scale implementation across all departments without prior testing",
+                "Report resistant colleagues to higher authority for administrative non-compliance"
+            ],
+            answer: 1,
+            explanation: "Demonstrating innovation involves testing novel approaches on a manageable pilot scale, assessing results empirically, and refining processes to build institutional trust."
+        },
+        {
+            q: "Behavioral indicators of Innovation and Creativity include:",
+            options: [
+                "Strictly enforcing outdated administrative procedures",
+                "Identifying process inefficiencies, testing practical new ideas, and encouraging creative contributions",
+                "Rejecting non-traditional ideas generated by junior staff members",
+                "Implementing unverified practices without considering operational constraints"
+            ],
+            answer: 1,
+            explanation: "Innovation competency involves questioning inefficient routines, proposing context-appropriate solutions, and encouraging creative contributions from team members."
+        },
+        {
+            q: "What distinguishes public sector innovation from uncalculated risk-taking?",
+            options: [
+                "Innovation in the public sector avoids testing or evidence gathering",
+                "Public sector innovation adapts novel solutions responsibly to fit real operational contexts",
+                "Public sector innovation is limited exclusively to purchasing expensive modern software",
+                "Innovation only applies to technical IT departments, not administrative workflows"
+            ],
+            answer: 1,
+            explanation: "Public sector innovation focuses on adapting practical, evidence-informed solutions responsibly to match specific public environments and regulatory frameworks."
+        },
+        {
+            q: "A team member suggests a new method for streamlining patient triage in a crowded health center. How should a competent supervisor react?",
+            options: [
+                "Dismiss the idea immediately to avoid disrupting established routines",
+                "Evaluate the suggestion's feasibility, encourage the team member, and test it if viable",
+                "Reprimand the staff member for questioning standard institutional operating manuals",
+                "Adopt the idea instantly without evaluating potential patient safety risks"
+            ],
+            answer: 1,
+            explanation: "Encouraging team member ideas, evaluating feasibility, and testing viable improvements are key behaviors of effective innovation leaders."
+        },
+        {
+            q: "A government agency promoting local health commodity production notices that small domestic manufacturers lack knowledge regarding international quality standards required for public tenders. What action best reflects Market Development competency?",
+            options: [
+                "Leave private producers to figure out compliance standards independently",
+                "Identify technical gaps and provide targeted advisory guidance to build producer capacity",
+                "Mandate strict standard compliance immediately without providing guidance or consulting industry players",
+                "Suspend all local procurement programs and rely entirely on foreign imports"
+            ],
+            answer: 1,
+            explanation: "Public sector market development involves identifying technical market barriers and proactively offering capacity-building support to cultivate local industry readiness."
+        },
+        {
+            q: "In the public civil service, Market Development as a behavioral competency focuses on:",
+            options: [
+                "Maximizing financial profits for public institutions",
+                "Shaping market conditions to foster economic growth, private sector engagement, and public value",
+                "Establishing government monopolies in all essential consumer goods markets",
+                "Deregulating public health standards to allow unrestricted commercial activities"
+            ],
+            answer: 1,
+            explanation: "Market development in the public sector focuses on shaping market dynamics, removing structural barriers, and encouraging private sector participation to achieve public policy goals."
+        },
+        {
+            q: "A public health procurement director wants to encourage local pharmaceutical manufacturing. Which approach demonstrates proactive market development?",
+            options: [
+                "Maintaining opaque bidding procedures that favor established international vendors",
+                "Engaging local suppliers transparently, sharing future demand forecasts, and outlining compliance needs",
+                "Fixing prices artificially below production costs to force local supplier compliance",
+                "Restricting market information exclusively to state-owned enterprises"
+            ],
+            answer: 1,
+            explanation: "Transparent engagement, clear communication of regulatory standards, and sharing procurement projections help structure markets and encourage local supplier participation."
+        },
+        {
+            q: "Unlike private sector market development, public sector market development primarily emphasizes:",
+            options: [
+                "Maximizing quarterly dividends for corporate shareholders",
+                "Addressing market failures, ensuring equity, transparency, and inclusive economic growth",
+                "Reducing public accountability to speed up commercial transactions",
+                "Eliminating regulatory oversight in public health service delivery"
+            ],
+            answer: 1,
+            explanation: "While private market expansion prioritizes financial profit, public sector market development centers on public value, equity, regulatory transparency, and correcting market failures."
+        },
+        {
+            q: "A regional health bureau officer is organizing a maternal health campaign involving diverse groups—local business leaders, community elders, women's associations, and regulatory agencies—each with competing priorities. Which action demonstrates strong Stakeholder Leadership?",
+            options: [
+                "Prioritize exclusively the demands of business sponsors to secure financial backing",
+                "Map stakeholders, facilitate inclusive dialogue, manage conflicting expectations, and build consensus",
+                "Execute project decisions unilaterally without consulting stakeholders to avoid debate delays",
+                "Exclude non-governmental community representatives from planning consultations"
+            ],
+            answer: 1,
+            explanation: "Stakeholder leadership involves systematic stakeholder mapping, active dialogue, managing divergent perspectives, and aligning varied groups behind shared goals."
+        },
+        {
+            q: "Stakeholder Leadership in the civil service involves:",
+            options: [
+                "Exercising absolute direct authority over external partner organizations",
+                "Identifying relevant internal/external stakeholders, building constructive relationships, and mobilizing shared action",
+                "Relying solely on formal directives to enforce inter-agency cooperation",
+                "Giving equal budget allocations to all stakeholders regardless of project involvement"
+            ],
+            answer: 1,
+            explanation: "Public sector stakeholder leadership requires navigating complex, multi-actor settings without relying solely on direct authority, using relationship-building and influence to achieve shared public goals."
+        },
+        {
+            q: "When two key community stakeholder groups clash over the location of a new primary health clinic, a public manager displaying stakeholder leadership should:",
+            options: [
+                "Arbitrarily select a location without offering rationale to either group",
+                "Cancel the project entirely until the community resolves the dispute independently",
+                "Convene a structured consultation to analyze community needs, explain constraints, and negotiate a mutually acceptable site",
+                "Side with the group that possesses higher economic status"
+            ],
+            answer: 2,
+            explanation: "Managing conflict transparently through structured dialogue and objective criteria is a core element of stakeholder leadership."
+        },
+        {
+            q: "Which statement best encapsulates the combined core of Communication and Influencing competency?",
+            options: [
+                "Delivering persuasive, authoritative lectures while ignoring stakeholder responses",
+                "Communicating clearly, transparently, and ethically to build trust and guide decisions toward shared goals",
+                "Restricting communication strictly to official written circulars and memos",
+                "Convincing others by relying solely on institutional authority and rank"
+            ],
+            answer: 1,
+            explanation: "Effective communication paired with ethical influence involves active listening, clear messaging, and building mutual understanding to guide stakeholders toward collaborative outcomes."
+        },
+        {
+            q: "An officer needs to explain a complex new health reporting guideline to rural healthcare workers. To communicate effectively, the officer should:",
+            options: [
+                "Use dense technical jargon to establish technical authority",
+                "Adapt language to suit the audience's context, verify understanding, and encourage feedback",
+                "Send a 50-page technical manual without providing orientation sessions",
+                "Delegate the communication task completely to administrative assistants"
+            ],
+            answer: 1,
+            explanation: "Clear communication requires tailoring messages to the audience's context, ensuring comprehension, and maintaining open channels for feedback."
+        },
+        {
+            q: "Active listening as a key element of the Communication competency involves:",
+            options: [
+                "Preparing counter-arguments while the other person is speaking",
+                "Paying full attention, understanding different perspectives, and acknowledging emotional context before responding",
+                "Remaining silent during discussions without providing feedback",
+                "Interrupting speakers frequently to correct minor factual errors"
+            ],
+            answer: 1,
+            explanation: "Active listening requires giving focused attention, grasping underlying message contexts, acknowledging emotions, and responding thoughtfully."
+        },
+        {
+            q: "When presenting a controversial policy change to internal department staff, an influential leader will:",
+            options: [
+                "Present clear evidence, articulate rationale transparently, address concerns constructively, and highlight benefits",
+                "Demand immediate compliance without explaining the underlying policy rationale",
+                "Blame top management for the policy change to avoid personal criticism",
+                "Hide potential implementation challenges from the team"
+            ],
+            answer: 0,
+            explanation: "Ethical influence relies on clear rationale, open communication, evidence, and addressing stakeholder concerns constructively."
+        },
+        {
+            q: "Which workplace behavior most accurately reflects effective Teamwork in public service?",
+            options: [
+                "Hoarding specialized information to remain indispensable within the unit",
+                "Sharing relevant information, supporting colleagues across differences, and prioritizing collective goals",
+                "Focusing exclusively on individual task completion while ignoring team performance",
+                "Avoiding open discussions on team workflow issues to prevent minor disagreements"
+            ],
+            answer: 1,
+            explanation: "Effective teamwork relies on open knowledge-sharing, mutual support across backgrounds, and prioritizing overall team performance over personal visibility."
+        },
+        {
+            q: "A project team is experiencing interpersonal friction between technical specialists and administrative personnel. A team player with high teamwork competency will:",
+            options: [
+                "Take sides with technical peers to establish dominant consensus",
+                "Promote constructive dialogue, focus the group on shared objectives, and respect professional contributions",
+                "Request immediate transfer to a less diverse unit",
+                "Ignore the interpersonal tension and work in isolation"
+            ],
+            answer: 1,
+            explanation: "Teamwork competency involves resolving interpersonal friction constructively, emphasizing shared goals, and valuing diverse expertise."
+        },
+        {
+            q: "Which approach best builds a positive, collaborative team culture?",
+            options: [
+                "Publicly criticizing individual mistakes during team meetings",
+                "Celebrating collective achievements, supporting struggling colleagues, and encouraging peer coaching",
+                "Creating competitive rivalries between individual workers",
+                "Restricting task ownership strictly to senior personnel"
+            ],
+            answer: 1,
+            explanation: "Supportive environments, shared recognition, and peer coaching help build positive, high-performing teams."
+        },
+        {
+            q: "A public servant issuing health facility licenses encounters an aggressive citizen who accuses the office of administrative bias and intentional delays. Which response best demonstrates Emotional Intelligence?",
+            options: [
+                "Argue forcefully with the citizen to defend personal and institutional dignity",
+                "Remain calm, de-escalate emotional tension, acknowledge concerns, and explain objective procedures clearly",
+                "Terminate the interaction immediately and refuse future service delivery",
+                "Pass the applicant's file to a colleague without providing an explanation"
+            ],
+            answer: 1,
+            explanation: "Emotional intelligence involves maintaining composure under pressure, managing personal emotional reactions, demonstrating empathy, and responding calmly."
+        },
+        {
+            q: "Emotional Intelligence in public service delivery enables civil servants to:",
+            options: [
+                "Suppress all personal emotions and ignore citizen emotional states during service delivery",
+                "Recognize, understand, and manage personal emotions while responding empathetically to others under high pressure",
+                "Make administrative decisions based on personal emotional bonds with clients",
+                "Avoid difficult management decisions that might generate negative reactions"
+            ],
+            answer: 1,
+            explanation: "EI empowers public workers to navigate high-stress environments, understand client perspectives, and maintain professional composure."
+        },
+        {
+            q: "A team leader receives harsh, unexpected feedback during a performance evaluation from senior managers. Demonstrating high Emotional Intelligence, the leader will:",
+            options: [
+                "React defensively and accuse management of personal bias",
+                "Maintain emotional composure, listen constructively, process the feedback objectively, and create an improvement plan",
+                "Immediately resign from the project leadership position",
+                "Express frustration openly to junior staff members"
+            ],
+            answer: 1,
+            explanation: "Emotionally intelligent professionals handle criticism constructively without becoming defensive, using feedback to drive performance growth."
+        },
+        {
+            q: "Empathy as a behavioral indicator of Emotional Intelligence means:",
+            options: [
+                "Agreeing with every request made by clients regardless of regulatory compliance",
+                "Understanding others' viewpoints and feelings, and integrating that awareness into respectful interactions",
+                "Pitying clients who experience administrative delays",
+                "Allowing personal feelings to dictate policy application"
+            ],
+            answer: 1,
+            explanation: "Empathy means recognizing and understanding another person's feelings and perspective while maintaining professional standards."
+        },
+        {
+            q: "A procurement officer is evaluating bids for medical equipment supply. A personal friend who owns an competing firm informally asks for confidential details regarding rival bids. Which action demonstrates Ethics and Role Modeling?",
+            options: [
+                "Share minimal, generalized pricing details to help the friend without violating formal rules",
+                "Refuse the request, formally disclose the potential conflict of interest, and recuse oneself from evaluation",
+                "Delay answering the friend until after the bid evaluation is finalized",
+                "Advise the friend on how to alter their pricing structure to win the contract"
+            ],
+            answer: 1,
+            explanation: "Ethics requires unwavering integrity, total transparency, declaring conflicts of interest immediately, and removing oneself from biased decision-making."
+        },
+        {
+            q: "Public sector ethics requires civil servants to prioritize:",
+            options: [
+                "Personal career progression above operational goals",
+                "Public interest, integrity, and rule of law over personal or parochial interests",
+                "Departmental convenience over public transparency",
+                "Loyalty to personal social networks above professional standards"
+            ],
+            answer: 1,
+            explanation: "Public interest, regulatory compliance, and personal integrity must always supersede private gains or personal ties."
+        },
+        {
+            q: "What constitutes role modeling in ethical public administration?",
+            options: [
+                "Consistently demonstrating honesty, transparency, and adherence to values, thereby inspiring ethical behavior in others",
+                "Enforcing strict ethical rules on subordinates while exempting senior managers",
+                "Verbally advocating for ethics while disregarding minor administrative standards",
+                "Hiding operational mistakes to protect organizational credibility"
+            ],
+            answer: 0,
+            explanation: "Role modeling means setting a personal example through consistent ethical conduct, transparent decision-making, and professional accountability."
+        },
+        {
+            q: "When a civil servant discovers systemic financial misreporting within their unit, the ethical response is to:",
+            options: [
+                "Ignore the issue if personal finances are not directly involved",
+                "Report the observed irregularity through established legal and administrative channels",
+                "Assist colleagues in correcting files retroactively without informing leadership",
+                "Leak unverified information to informal social media channels"
+            ],
+            answer: 1,
+            explanation: "Upholding public sector ethics mandates addressing irregularities through proper administrative channels rather than ignoring them or bypassing protocols."
+        },
+        {
+            q: "A selection committee is choosing candidates for a specialized health training program. Applicants have similar basic credentials, but candidates from remote regions and persons with disabilities have historically faced systemic access barriers. Which approach aligns best with Diversity and Inclusion?",
+            options: [
+                "Apply rigid historical screening criteria strictly, ignoring historical background inequalities",
+                "Apply job-relevant criteria while accounting for structural barriers and providing reasonable accommodations",
+                "Select candidates exclusively from remote regions regardless of basic competency requirements",
+                "Choose only candidates who can complete the course quickly to minimize program costs"
+            ],
+            answer: 1,
+            explanation: "Diversity and inclusion principles involve applying job-relevant criteria while actively accounting for unequal access barriers and offering reasonable accommodations."
+        },
+        {
+            q: "A multi-cultural public health team includes members who rarely contribute during open technical meetings. As team leader, how should you foster inclusion?",
+            options: [
+                "Rely solely on vocal team members to maintain meeting speed",
+                "Create inclusive meeting structures, invite diverse contributions explicitly, and value varied perspectives",
+                "Reassign quiet staff members to routine administrative tasks",
+                "Restrict technical contributions to members with senior academic ranks"
+            ],
+            answer: 1,
+            explanation: "Inclusive leadership requires creating psychological safety, inviting participation from quiet members, and valuing varied backgrounds."
+        },
+        {
+            q: "In the Ethiopian Civil Service context, Diversity and Inclusion competencies mandate:",
+            options: [
+                "Treating all individuals fairly, eliminating discrimination based on ethnicity, gender, disability, or background",
+                "Homogenizing institutional practices to eliminate cultural differences",
+                "Granting promotions based exclusively on regional origin",
+                "Ignoring specialized accommodations for staff members with physical disabilities"
+            ],
+            answer: 0,
+            explanation: "Civil service regulations demand fair treatment, anti-discrimination, equal opportunities, and respecting diversity across gender, ethnicity, and disability status."
+        },
+        {
+            q: "Annual departmental targets have been met, but employee engagement is declining because staff feel their routine work lacks real connection to broader public health outcomes. What should the supervisor do first?",
+            options: [
+                "Introduce minor financial bonuses for workers who exceed individual output targets",
+                "Explain clearly how each specific role contributes to broader health sector outcomes and involve staff in planning",
+                "Increase daily monitoring and output reporting to enforce operational focus",
+                "Rotate personnel randomly across unrelated units without prior orientation"
+            ],
+            answer: 1,
+            explanation: "Intrinsic motivation increases when workers understand how their specific daily efforts connect to high-level strategic goals and public health benefits."
+        },
+        {
+            q: "How does a competent manager effectively empower and motivate team members?",
+            options: [
+                "Retaining all decision-making authority to ensure operational error prevention",
+                "Delegating meaningful responsibility, coaching staff, recognizing achievements, and supporting professional growth",
+                "Allowing staff total operational freedom without monitoring performance indicators",
+                "Offering financial bonuses exclusively to top-tier technical specialists"
+            ],
+            answer: 1,
+            explanation: "True empowerment involves structured delegation, coaching, recognizing contributions, and supporting continuous professional growth."
+        },
+        {
+            q: "Knowledge transfer as a key component of the Competence and Motivation domain includes:",
+            options: [
+                "Keeping specialized documentation confidential to maintain leadership status",
+                "Actively mentoring junior staff, sharing practical insights, and building institutional capacity",
+                "Delegating difficult tasks without providing prior instruction or support",
+                "Requiring junior workers to learn complex procedures through trial and error"
+            ],
+            answer: 1,
+            explanation: "Competent leaders share domain expertise willingly, mentor colleagues, and systematically build internal team capacity."
+        },
+        {
+            q: "A citizen visits a Woreda health office with an urgent healthcare grievance that falls partially outside the unit's direct legal mandate. Assisting the citizen requires inter-agency coordination. Which action best reflects Servanthood?",
+            options: [
+                "Reject the citizen's request immediately and direct them to read the published organizational mandate",
+                "Listen attentively, clarify needs, provide clear guidance, and actively coordinate an effective referral",
+                "Bypass standard operational frameworks to resolve the grievance personally without institutional documentation",
+                "Demand that the citizen file a formal legal petition before offering initial advice"
+            ],
+            answer: 1,
+            explanation: "Servanthood puts citizen needs first by providing clear orientation, treating clients respectfully, and coordinating warm referrals even across organizational boundaries."
+        },
+        {
+            q: "Servanthood as a civil service competency prioritizes:",
+            options: [
+                "Civil servants' administrative comfort over citizen service access",
+                "A proactive commitment to treating citizens as valued partners and meeting their needs efficiently",
+                "Standardizing bureau hours regardless of community access requirements",
+                "Maximizing administrative fees collected from public service delivery"
+            ],
+            answer: 1,
+            explanation: "Servanthood centers on a citizen-first attitude, treating members of the public with dignity, empathy, and service excellence."
+        },
+        {
+            q: "When handling public service complaints, a civil servant demonstrating servanthood will:",
+            options: [
+                "View complaints as personal attacks against institutional authority",
+                "Welcome complaints as opportunities for service improvement, resolving them impartially and promptly",
+                "Delay processing complaints to discourage citizen grievances",
+                "Transfer all complaint files directly to legal departments"
+            ],
+            answer: 1,
+            explanation: "Viewing complaints constructively as feedback helps improve processes and build public trust."
+        },
+        {
+            q: "A public health manager schedules eight consecutive back-to-back meetings from 8:00 AM to 4:00 PM without breaks, leaving no time to process decisions or assign action items. What adjustment reflects strong Time Management?",
+            options: [
+                "Combine all meetings into one single 8-hour continuous session",
+                "Restructure the schedule to include buffers between meetings for documentation, prioritization, and follow-up",
+                "Request attendees to speak twice as fast during session deliberations",
+                "Postpone all follow-up actions to the following month's work plan"
+            ],
+            answer: 1,
+            explanation: "Effective time management requires planning realistic schedules, including buffers between meetings to process information, assign tasks, and manage follow-ups."
+        },
+        {
+            q: "Effective Time Management in the public sector involves:",
+            options: [
+                "Focusing exclusively on urgent, unexpected tasks while neglecting planned strategic priorities",
+                "Realistic task planning, prioritizing high-impact work, meeting deadlines, and removing time-wasting steps",
+                "Extending working hours routinely to make up for disorganized daily workflows",
+                "Delegating all time-consuming tasks entirely to junior staff members"
+            ],
+            answer: 1,
+            explanation: "Time management centers on realistic task scheduling, eliminating time-wasting steps, and keeping focus on high-priority goals."
+        },
+        {
+            q: "How should a health administrator prioritize competing work tasks?",
+            options: [
+                "Execute short tasks first, regardless of strategic value",
+                "Prioritize tasks based on strategic impact, urgency, and operational dependencies",
+                "Work strictly on tasks assigned by the most vocal colleagues",
+                "Focus only on tasks that are easy to complete"
+            ],
+            answer: 1,
+            explanation: "Structured task prioritization requires evaluating both strategic impact and operational urgency (e.g., using an Eisenhower Matrix approach)."
+        },
+        {
+            q: "In a resource-constrained public health office, which initiative best exemplifies Value-Adding Work?",
+            options: [
+                "Completing assigned routine paperwork without evaluating its practical utility",
+                "Analyzing current workflows to eliminate redundant steps, reducing costs and client waiting times",
+                "Requesting additional budget to expand existing manual archive storage space",
+                "Creating additional approval levels to ensure thorough management oversight"
+            ],
+            answer: 1,
+            explanation: "Value-adding work focuses on optimizing workflows, removing administrative redundancies, and delivering better outcomes efficiently."
+        },
+        {
+            q: "Value-Adding Work focuses primarily on:",
+            options: [
+                "Maximizing the quantity of internal administrative memos generated",
+                "Enhancing public service quality, efficiency, and positive community outcomes relative to resources spent",
+                "Strictly adhering to obsolete operational manuals",
+                "Expanding administrative staff sizes to handle growing paperwork"
+            ],
+            answer: 1,
+            explanation: "Delivering value-adding work means maximizing tangible public health outcomes while using administrative time and financial resources efficiently."
+        },
+        {
+            q: "A health manager reviewing departmental activities notices a reporting process that takes 20 staff hours weekly but yields unused data. Applying Value-Adding principles, the manager should:",
+            options: [
+                "Mandate that staff complete the report faster without changing its structure",
+                "Streamline or replace the process to gather actionable data efficiently, reallocating saved time to priority tasks",
+                "Hire an external data clerk to take over the existing reporting process",
+                "Ignore the issue since the task is part of historical office routine"
+            ],
+            answer: 1,
+            explanation: "Value-adding mindsets prioritize replacing obsolete, low-impact processes with streamlined, actionable workflows."
+        },
+        {
+            q: "A medical equipment distribution project misses its implementation deadline by six months due to poor vendor management and weak internal tracking. How should the project lead exercise professional accountability?",
+            options: [
+                "Blame external contractors completely in public reports to protect institutional integrity",
+                "Present a thorough failure analysis, take ownership of oversight lapses, and submit a milestone recovery plan",
+                "Reallocate remaining project funds secretly to obscure the delay",
+                "Request an immediate transfer to avoid project audit scrutiny"
+            ],
+            answer: 1,
+            explanation: "Taking full ownership of lapses, offering transparent root-cause analyses, and providing actionable recovery plans are core to discharging responsibility."
+        },
+        {
+            q: "Discharging Responsibility as a behavioral competency requires a civil servant to:",
+            options: [
+                "Shift blame to team members when project outputs fail to meet quality standards",
+                "Take full ownership of duties, deliver work reliably to established standards, and honor commitments",
+                "Accept responsibility only when project outcomes are successful",
+                "Avoid taking initiative on complex assignments to prevent potential mistakes"
+            ],
+            answer: 1,
+            explanation: "Discharging responsibility centers on accountability, personal reliability, taking ownership of results, and honoring commitments."
+        },
+        {
+            q: "When an operational error occurs during a public health campaign, an accountable officer will:",
+            options: [
+                "Cover up the mistake until the campaign concludes",
+                "Acknowledge the error promptly, take corrective action, and implement preventative measures",
+                "Blame field officers for failing to interpret instructions correctly",
+                "Wait for senior leadership to discover the error independently"
+            ],
+            answer: 1,
+            explanation: "Accountable leaders acknowledge errors early, take prompt corrective measures, and establish preventive actions."
+        },
+        {
+            q: "A bureau head is leading a transition toward decentralized hospital budget management. Regional directors resist, fearing financial liability and administrative burden. How should the bureau head lead this transition?",
+            options: [
+                "Issue an administrative order demanding immediate compliance under threat of disciplinary action",
+                "Implement a phased transition paired with structured financial management training and coaching",
+                "Cancel the decentralization reform completely to maintain administrative peace",
+                "Maintain centralized control while delegating non-financial administrative work"
+            ],
+            answer: 1,
+            explanation: "Effective leadership navigates major administrative shifts through phased rollouts, supporting stakeholders with continuous coaching and capacity building."
+        },
+        {
+            q: "Public sector Leadership competency centers on:",
+            options: [
+                "Exercising absolute top-down control over institutional resources",
+                "Setting clear strategic direction, inspiring high performance, modeling ethical values, and empowering staff",
+                "Securing personal executive privileges",
+                "Protecting established operational paradigms from external reform"
+            ],
+            answer: 1,
+            explanation: "Civil service leadership involves providing clear strategic direction, fostering high-performance cultures, role-modeling ethics, and empowering teams."
+        },
+        {
+            q: "Inclusive leadership within the Ethiopian Civil Service framework is best demonstrated when a leader:",
+            options: [
+                "Makes executive decisions in isolation to ensure administrative speed",
+                "Seeks diverse perspectives, empowers team members, and fosters equitable growth across all levels",
+                "Favors staff members who share similar cultural or professional backgrounds",
+                "Delegates all leadership responsibilities to department heads"
+            ],
+            answer: 1,
+            explanation: "Inclusive leaders invite varied viewpoints, encourage team-wide participation, and promote equitable growth opportunities."
+        },
+        {
+            q: "How does an effective civil service leader manage institutional change during major administrative reforms?",
+            options: [
+                "Minimizing worker communication to prevent organizational anxiety",
+                "Articulating a clear vision, addressing worker concerns empathetically, providing training, and guiding adaptation",
+                "Overriding employee feedback to push reforms forward rapidly",
+                "Delaying reform execution indefinitely until full consensus is achieved"
+            ],
+            answer: 1,
+            explanation: "Managing institutional change effectively requires clear strategic vision, empathetic engagement, transparent communication, and structured training support."
+        },
+        {
+            q: "A senior expert in a regional health bureau notices that epidemiological data collected from rural clinics is frequently inaccurate due to complex forms. The expert revises the forms into simple digital templates and trains field staff. This action demonstrates a combination of which competencies?",
+            options: [
+                "Market Development and Servanthood",
+                "Innovation, Value-Adding Work, and Technology Utilization",
+                "Strategic Thinking and Time Management",
+                "Discharging Responsibility and Emotional Intelligence"
+            ],
+            answer: 1,
+            explanation: "Redesigning cumbersome paper tools into digital formats, eliminating data inefficiencies, and leveraging technology reflect Innovation, Value-Adding Work, and Technology Utilization."
+        },
+        {
+            q: "During an outbreak response, a Woreda health officer coordinates local elders, youth volunteers, and international NGOs to distribute medical supplies efficiently despite transport shortages. This showcases strength in:",
+            options: [
+                "Market Building and Personal Ethics",
+                "Stakeholder Leadership, Resource Organization, and Teamwork",
+                "Financial Accounting and Cognitive Memorization",
+                "Psychomotor Mechanics and Individual Accountability"
+            ],
+            answer: 1,
+            explanation: "Engaging community leaders and NGOs, organizing logistics under constraints, and driving collaborative action showcase Stakeholder Leadership, Resource Organization, and Teamwork."
+        },
+        {
+            q: "A hospital department chief discovers that surgical equipment maintenance is overdue. Rather than waiting for an incident, the chief halts non-urgent procedures, notifies leadership transparently, and arranges emergency servicing. This demonstrates:",
+            options: [
+                "High Risk Avoidance and Low Servanthood",
+                "Ethics, Discharging Responsibility, and Decision Making",
+                "Market Development and Strategic Delegation",
+                "Emotional Reactivity and Technical Incompetence"
+            ],
+            answer: 1,
+            explanation: "Proactively prioritizing patient safety, communicating transparently with leadership, and taking decisive corrective action demonstrate Ethics, Discharging Responsibility, and Decision Making."
+        },
+        {
+            q: "A health officer receives constructive criticism from a community oversight committee regarding long patient wait times. The officer controls their defensiveness, thanks the committee, and works with staff to redesign patient flow. This demonstrates:",
+            options: [
+                "High Emotional Intelligence, Servanthood, and Value-Adding Work",
+                "Low Technical Competency and High Market Leadership",
+                "Excessive Accommodation and Weak Leadership",
+                "Time Management and Resource Sourcing"
+            ],
+            answer: 0,
+            explanation: "Controlling emotional reactions to criticism (EI), placing patient convenience first (Servanthood), and optimizing workflow efficiency (Value-Adding Work) highlight this balanced response."
+        },
+        {
+            q: "An executive director balances urgent political requests for immediate health center inaugurations with long-term plans for equipping existing facilities properly. The director uses:",
+            options: [
+                "Rigid Bureaucratic Resistance",
+                "Strategic Thinking, Stakeholder Leadership, and Communication",
+                "Market Development and Financial Liquidation",
+                "Unilateral Decision-Making"
+            ],
+            answer: 1,
+            explanation: "Navigating competing immediate political expectations against long-term operational health goals requires Strategic Thinking, Stakeholder Leadership, and clear Communication."
+        },
+        {
+            q: "A clinical specialist mentors junior nurses daily, sharing technical tips on patient care while encouraging them during difficult night shifts. This demonstrates:",
+            options: [
+                "Competence and Motivation, Knowledge Application, and Leadership",
+                "Discharging Responsibility and Strategic Market Planning",
+                "Servanthood and Technical Procurement",
+                "Emotional Suppression and Task Execution"
+            ],
+            answer: 0,
+            explanation: "Mentoring junior colleagues, sharing domain expertise, and offering encouragement demonstrate Competence and Motivation, Knowledge Application, and Leadership."
+        },
+        {
+            q: "A public manager discovers an unintentional calculation error in a published health budget that benefits their own unit. The manager immediately reports the error for correction. This highlights:",
+            options: [
+                "Professional Ethics, Integrity, and Role Modeling",
+                "Strategic Negotiation and Value Addition",
+                "Poor Attention to Detail and Financial Incompetence",
+                "Stakeholder Manipulation"
+            ],
+            answer: 0,
+            explanation: "Disclosing errors that favor one's own unit reflects personal honesty, Professional Ethics, and Role Modeling."
+        },
+        {
+            q: "A primary health care unit supervisor organizes working schedules to accommodate female staff members with infant children while maintaining full clinic operational hours. This reflects:",
+            options: [
+                "Diversity and Inclusion, Planning, and Servanthood",
+                "Unfair Administrative Favoritism",
+                "Market Building and Economic Strategy",
+                "Strategic Avoidance of Performance Metrics"
+            ],
+            answer: 0,
+            explanation: "Offering reasonable workplace accommodations while maintaining full public service delivery demonstrates Diversity and Inclusion, operational Planning, and Servanthood."
+        },
+        {
+            q: "A civil servant tasked with procuring lab reagents researches emerging local biotech startups, evaluates their technical capacity, and structures transparent procurement channels. This illustrates:",
+            options: [
+                "Market Development, Technology Utilization, and Innovation",
+                "Emotional Intelligence and Basic Administration",
+                "Short-Term Budget Depletion",
+                "Discharging Responsibility and Task Avoidance"
+            ],
+            answer: 0,
+            explanation: "Supporting domestic supply bases and building transparent procurement channels demonstrate Market Development, Technology Utilization, and Innovation."
+        },
+        {
+            q: "A regional coordinator creates a clear digital dashboard that displays real-time medicine stock levels across 50 health posts, allowing proactive reordering before stockouts occur. This demonstrates:",
+            options: [
+                "Value-Adding Work, Technology Utilization, and Planning",
+                "Market Building and Reactive Management",
+                "Servanthood and Emotional Intelligence",
+                "Professional Ethics and Basic Reporting"
+            ],
+            answer: 0,
+            explanation: "Developing real-time digital monitoring tracking systems to prevent stockouts demonstrates Value-Adding Work, Technology Utilization, and proactive Planning."
+        },
+        {
+            q: "A supervisor notices two team members arguing passionately over resource allocation for their respective health projects. The supervisor listens to both, highlights shared program goals, and guides them to a collaborative resource-sharing agreement. This showcases:",
+            options: [
+                "Teamwork, Emotional Intelligence, and Communication",
+                "Market Development and Strategic Isolation",
+                "Strict Bureaucratic Intervention",
+                "Discharging Responsibility and Task Reassignment"
+            ],
+            answer: 0,
+            explanation: "Mediating conflict through active listening, focusing on shared goals, and encouraging collaboration demonstrates Teamwork, Emotional Intelligence, and Communication."
+        },
+        {
+            q: "Facing sudden budget cuts, a project leader convenes the team, presents financial realities openly, gathers ideas for cost savings, and maintains team morale. This reflects:",
+            options: [
+                "Leadership, Communication and Influencing, and Competence & Motivation",
+                "Market Development and Financial Compliance",
+                "Servanthood and Administrative Avoidance",
+                "Strategic Thinking and Individual Control"
+            ],
+            answer: 0,
+            explanation: "Transparent communication during crises, encouraging team suggestions, and maintaining team morale demonstrate Leadership, Communication, and Competence & Motivation."
+        },
+        {
+            q: "A health extension supervisor routinely conducts field visits in remote, difficult-to-reach kebeles to support field workers rather than staying solely in the central office. This demonstrates:",
+            options: [
+                "Servanthood, Role Modeling, and Discharging Responsibility",
+                "Market Development and Task Duplication",
+                "Poor Time Management and Lack of Planning",
+                "Strategic Isolation"
+            ],
+            answer: 0,
+            explanation: "Leaving administrative comfort zones to support frontline health extension workers directly reflects Servanthood, Role Modeling, and Discharging Responsibility."
+        },
+        {
+            q: "An administrative clerk organizes paper and digital patient files logically, reducing document retrieval time from 20 minutes to 2 minutes. This exhibits:",
+            options: [
+                "Value-Adding Work and Time Management",
+                "Strategic Thinking and Market Development",
+                "Leadership and Stakeholder Alignment",
+                "Competence and Motivation"
+            ],
+            answer: 0,
+            explanation: "Eliminating administrative search delays and streamlining document systems represent Value-Adding Work and effective Time Management."
+        },
+        {
+            q: "A project manager systematically identifies operational risks—such as seasonal flooding affecting vaccine transport—and develops alternative delivery routes well in advance. This exhibits:",
+            options: [
+                "Planning, Risk Identification and Mitigation, and Strategic Thinking",
+                "Market Development and Uncalculated Risk-Taking",
+                "Servanthood and Emotional Stability",
+                "Technology Utilization and Market Expansion"
+            ],
+            answer: 0,
+            explanation: "Anticipating operational disruptions, assessing environmental constraints, and establishing advance contingency plans reflect Planning, Risk Mitigation, and Strategic Thinking."
+        },
+        {
+            q: "A public health officer presenting a new health initiative to skeptical community leaders uses local proverbs, respectful listening, and clear evidence to address fears. This reflects:",
+            options: [
+                "Communication and Influencing, and Diversity and Inclusion",
+                "Technical Isolation and Market Building",
+                "Discharging Responsibility and Strict Enforcing",
+                "Emotional Control and Administrative Control"
+            ],
+            answer: 0,
+            explanation: "Culturally respectful messaging, empathetic listening, and evidence-based persuasion showcase Communication and Influencing alongside Diversity and Inclusion."
+        },
+        {
+            q: "A civil servant refuses gifts offered by a vendor seeking priority processing of their health facility license application. This action directly demonstrates:",
+            options: [
+                "Integrity, Professional Ethics, and Role Modeling",
+                "Market Development and Customer Service",
+                "Competence and Motivation",
+                "Strategic Negotiation"
+            ],
+            answer: 0,
+            explanation: "Declining personal gifts or bribes during regulatory processing demonstrates uncompromising Integrity, Ethics, and Role Modeling."
+        },
+        {
+            q: "An officer evaluates an unsuccessful health program, identifies root causes of failure without hiding awkward findings, and shares lessons learned across the ministry. This reflects:",
+            options: [
+                "Evaluation, Continuous Learning, and Discharging Responsibility",
+                "Market Building and Financial Reporting",
+                "Strategic Avoidance and Emotional Reactivity",
+                "Servanthood and Basic Administration"
+            ],
+            answer: 0,
+            explanation: "Conducting honest program evaluations, identifying failure points, and sharing institutional learning exhibit Evaluation and Discharging Responsibility."
+        },
+        {
+            q: "A health facility manager schedules routine equipment maintenance during off-peak hours to avoid disrupting patient care. This demonstrates:",
+            options: [
+                "Time Management, Planning, and Servanthood",
+                "Market Development and Strategic Expansion",
+                "Diversity and Inclusion",
+                "Emotional Intelligence and Leadership"
+            ],
+            answer: 0,
+            explanation: "Structuring maintenance schedules around patient flow demonstrates effective Time Management, Planning, and a citizen-centered Servanthood mindset."
+        },
+        {
+            q: "A lead specialist uses specialized statistical software to analyze disease trends and provides actionable insights to policy makers. This demonstrates:",
+            options: [
+                "Skill (Tool Mastery), Knowledge Application, and Strategic Thinking",
+                "Market Development and Servanthood",
+                "Diversity and Inclusion",
+                "Discharging Responsibility and Task Allocation"
+            ],
+            answer: 0,
+            explanation: "Utilizing analytical software tools, applying technical knowledge, and informing policy decisions reflect Skill, Knowledge Application, and Strategic Thinking."
+        },
+        {
+            q: "A team leader ensures that all team members, including junior staff, receive credit in official ministry reports for their contributions to a successful project. This displays:",
+            options: [
+                "Ethics and Role Modeling, Competence and Motivation, and Teamwork",
+                "Market Building and Strategic Alignment",
+                "Time Management and Task Allocation",
+                "Personal Branding"
+            ],
+            answer: 0,
+            explanation: "Sharing success, acknowledging peer contributions transparently, and motivating staff showcase Ethics, Competence and Motivation, and Teamwork."
+        },
+        {
+            q: "A health officer working in a conflict-affected area remains calm under stress, providing steady guidance to clinic staff and reassuring patients. This showcases:",
+            options: [
+                "Emotional Intelligence, Resilience, and Leadership",
+                "Market Development and Economic Strategy",
+                "Technical Procurement",
+                "Strategic Avoidance"
+            ],
+            answer: 0,
+            explanation: "Maintaining emotional composure during crises, reassuring staff, and providing direction showcase Emotional Intelligence, Resilience, and Leadership."
+        },
+        {
+            q: "A policy analyst reviews health regulations, identifies outdated rules that slow down emergency approvals, and drafts streamlined replacement guidelines. This exhibits:",
+            options: [
+                "Value-Adding Work, Innovation, and Strategic Thinking",
+                "Servanthood and Market Development",
+                "Time Management and Routine Compliance",
+                "Diversity and Inclusion"
+            ],
+            answer: 0,
+            explanation: "Reforming obsolete regulatory rules to streamline critical public services reflects Value-Adding Work, Innovation, and Strategic Thinking."
+        },
+        {
+            q: "A civil servant proactively seeks feedback from peers and supervisors on their performance and takes concrete steps to address identified weak points. This reflects:",
+            options: [
+                "Receiving and Acting on Feedback, and Continuous Self-Development",
+                "Market Development and External Influence",
+                "Strategic Avoidance",
+                "Discharging Responsibility and Task Delegation"
+            ],
+            answer: 0,
+            explanation: "Seeking technical feedback and acting on recommendations demonstrate continuous professional self-development."
+        },
+        {
+            q: "A health department head aligns annual staff performance goals directly with the ministry's five-year strategic priorities. This demonstrates:",
+            options: [
+                "Strategy Formulation, Goal Alignment, and Planning",
+                "Market Building and External Relations",
+                "Servanthood and Customer Care",
+                "Diversity and Inclusion"
+            ],
+            answer: 0,
+            explanation: "Cascading high-level strategic objectives down into individual operational performance targets represents core Strategic Alignment and Planning."
+        },
+        {
+            q: "A public servant consistently arrives on time, fulfills commitments, produces accurate reports, and upholds civil service values daily. This represents:",
+            options: [
+                "Ethics and Role Modeling, Discharging Responsibility, and Professionalism",
+                "Market Development and Commercial Strategy",
+                "Innovation and Technology Utilization",
+                "Strategic Visioning"
+            ],
+            answer: 0,
+            explanation: "Personal punctuality, reliability, accuracy, and adherence to public service values represent Ethics, Discharging Responsibility, and Professionalism."
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let answered = false;
+
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultsScreen = document.getElementById('results-screen');
+
+    const questionCounter = document.getElementById('question-counter');
+    const scoreCounter = document.getElementById('score-counter');
+    const questionContainer = document.getElementById('question-container');
+    const optionsContainer = document.getElementById('options-container');
+    const explanationContainer = document.getElementById('explanation-container');
+    const explanationText = document.getElementById('explanation-text');
+    const nextBtn = document.getElementById('next-btn');
+    const finalScore = document.getElementById('final-score');
+    const resultMessage = document.getElementById('result-message');
+    const appContainer = document.getElementById('appContainer');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    // Theme toggle handler
+    function toggleTheme() {
+        const body = document.body;
+        if (body.getAttribute('data-theme') === 'dark') {
+            body.setAttribute('data-theme', 'light');
+            themeToggleBtn.textContent = '☀️';
+        } else {
+            body.setAttribute('data-theme', 'dark');
+            themeToggleBtn.textContent = '🌙';
+        }
+    }
+
+    // Interactive 3D tilt effect on mousemove
+    document.addEventListener('mousemove', (e) => {
+        const xAxis = (window.innerWidth / 2 - e.pageX) / 45;
+        const yAxis = (window.innerHeight / 2 - e.pageY) / 45;
+        appContainer.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+    });
+
+    document.addEventListener('mouseleave', () => {
+        appContainer.style.transform = `rotateY(0deg) rotateX(0deg)`;
+    });
+
+    function startQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        welcomeScreen.classList.remove('active');
+        resultsScreen.classList.remove('active');
+        quizScreen.classList.add('active');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        answered = false;
+        explanationContainer.classList.remove('show');
+        nextBtn.classList.add('hidden');
+        
+        const currentQ = questionsData[currentQuestionIndex];
+        questionCounter.textContent = `Question ${currentQuestionIndex + 1} of ${questionsData.length}`;
+        scoreCounter.textContent = `Score: ${score}`;
+        questionContainer.textContent = currentQ.q;
+
+        optionsContainer.innerHTML = '';
+        currentQ.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = opt;
+            btn.onclick = () => selectOption(index);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function selectOption(selectedIndex) {
+        if (answered) return;
+        answered = true;
+
+        const currentQ = questionsData[currentQuestionIndex];
+        const buttons = optionsContainer.getElementsByTagName('button');
+
+        if (selectedIndex === currentQ.answer) {
+            buttons[selectedIndex].classList.add('correct');
+            score++;
+            scoreCounter.textContent = `Score: ${score}`;
+        } else {
+            buttons[selectedIndex].classList.add('incorrect');
+            buttons[currentQ.answer].classList.add('correct');
+        }
+
+        for (let btn of buttons) {
+            btn.disabled = true;
+        }
+
+        explanationText.textContent = currentQ.explanation;
+        explanationContainer.classList.add('show');
+        nextBtn.classList.remove('hidden');
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questionsData.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        quizScreen.classList.remove('active');
+        resultsScreen.classList.add('active');
+        finalScore.textContent = `${score} / ${questionsData.length}`;
+
+        const percentage = (score / questionsData.length) * 100;
+        if (percentage >= 80) {
+            resultMessage.textContent = "Outstanding mastery! You exhibit elite command over the Ministry of Health behavioral and technical frameworks.";
+        } else if (percentage >= 50) {
+            resultMessage.textContent = "Strong effort! Review the detailed rationales to sharpen your core competencies further.";
+        } else {
+            resultMessage.textContent = "Keep building your expertise! Revisit the curriculum training notes and try again.";
+        }
+    }
+
+    function restartQuiz() {
+        resultsScreen.classList.remove('active');
+        welcomeScreen.classList.add('active');
+    }
+</script>
+
+</body>
+</html>
