@@ -362,11 +362,6 @@
             color: var(--text-main);
         }
 
-        .option-btn:hover:not(:disabled) {
-            background: var(--option-hover);
-            border-color: rgba(2, 132, 199, 0.6);
-        }
-
         .option-btn.correct {
             background: rgba(16, 185, 129, 0.15) !important;
             border-color: var(--success) !important;
@@ -443,19 +438,26 @@
         <!-- Welcome / Home Screen -->
         <div id="welcome-screen" class="screen active">
             <div class="welcome-card">
-                <h2>Solomon (MD, MPH/RH)</h2>
+                <h5>By Solomon (MD, MPH/RH)</h5>
+                <p id="resume-prompt-text" style="display: none; color: var(--badge-color); font-weight: 600; margin-bottom: 15px;">
+                    🔄 You have an active session in progress! Would you like to resume where you left off?
+                </p>
                 <p>
                     Welcome to the My Competency practice library Platform based on the Federal Civil Service Commission & Ministry of Health Competency Assessment platform. Choose your path below:
                 </p>
-                <div class="menu-grid">
+                <div class="menu-grid" id="menu-grid-buttons">
                     <button class="menu-btn" onclick="openStudyScreen()">
                         <h3>Study Material</h3>
                         <p>Explore detailed elaborations, unit definitions, and professional level breakdowns.</p>
                     </button>
                     <button class="menu-btn" onclick="startQuiz()">
                         <h3>Interactive Assessment</h3>
-                        <p>Test your mastery with 100 rigorous scenario-based MCQs and immediate rationales.</p>
+                        <p>Test your mastery with 100+ rigorous scenario-based MCQs and immediate rationales.</p>
                     </button>
+                </div>
+                <div id="resume-action-container" style="display: none; gap: 15px; justify-content: center; margin-top: 15px;">
+                    <button class="btn" onclick="resumeQuiz()">Resume Quiz</button>
+                    <button class="btn-back" onclick="startQuiz()">Restart Fresh</button>
                 </div>
             </div>
         </div>
@@ -1205,7 +1207,6 @@
             answer: 1,
             explanation: "True public service excellence requires both expert technical skills and exemplary behavioral values."
         },
-        // Expanded questions to reach over 100+ items
         {
             q: "Which competency unit requires managers to assess internal resource gaps before launching new programs?",
             options: ["Organizing Resources & Inputs", "Marketing", "Personal Branding", "Public Relations"],
@@ -1349,6 +1350,40 @@
     const appContainer = document.getElementById('appContainer');
     const themeToggleBtn = document.getElementById('themeToggleBtn');
 
+    const resumePromptText = document.getElementById('resume-prompt-text');
+    const resumeActionContainer = document.getElementById('resume-action-container');
+    const menuGridButtons = document.getElementById('menu-grid-buttons');
+
+    // Check for saved state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedState = localStorage.getItem('moh_quiz_state');
+        if (savedState) {
+            try {
+                const state = JSON.parse(savedState);
+                if (state && typeof state.index === 'number' && state.index < questionsData.length && !state.completed) {
+                    resumePromptText.style.display = 'block';
+                    resumeActionContainer.style.display = 'flex';
+                    menuGridButtons.style.display = 'none';
+                }
+            } catch (e) {
+                console.error("Error loading saved state", e);
+            }
+        }
+    });
+
+    function saveState() {
+        const state = {
+            index: currentQuestionIndex,
+            score: score,
+            completed: false
+        };
+        localStorage.setItem('moh_quiz_state', JSON.stringify(state));
+    }
+
+    function clearSavedState() {
+        localStorage.removeItem('moh_quiz_state');
+    }
+
     function toggleTheme() {
         const body = document.body;
         if (body.getAttribute('data-theme') === 'dark') {
@@ -1375,6 +1410,19 @@
         quizScreen.classList.remove('active');
         resultsScreen.classList.remove('active');
         welcomeScreen.classList.add('active');
+
+        // Re-check resume state when returning home
+        const savedState = localStorage.getItem('moh_quiz_state');
+        if (savedState) {
+            try {
+                const state = JSON.parse(savedState);
+                if (state && typeof state.index === 'number' && state.index < questionsData.length && !state.completed) {
+                    resumePromptText.style.display = 'block';
+                    resumeActionContainer.style.display = 'flex';
+                    menuGridButtons.style.display = 'none';
+                }
+            } catch (e) {}
+        }
     }
 
     function openStudyScreen() {
@@ -1385,8 +1433,31 @@
     }
 
     function startQuiz() {
+        clearSavedState();
         currentQuestionIndex = 0;
         score = 0;
+        welcomeScreen.classList.remove('active');
+        studyScreen.classList.remove('active');
+        resultsScreen.classList.remove('active');
+        quizScreen.classList.add('active');
+        loadQuestion();
+    }
+
+    function resumeQuiz() {
+        const savedState = localStorage.getItem('moh_quiz_state');
+        if (savedState) {
+            try {
+                const state = JSON.parse(savedState);
+                currentQuestionIndex = state.index || 0;
+                score = state.score || 0;
+            } catch (e) {
+                currentQuestionIndex = 0;
+                score = 0;
+            }
+        } else {
+            currentQuestionIndex = 0;
+            score = 0;
+        }
         welcomeScreen.classList.remove('active');
         studyScreen.classList.remove('active');
         resultsScreen.classList.remove('active');
@@ -1412,6 +1483,8 @@
             btn.onclick = () => selectOption(index);
             optionsContainer.appendChild(btn);
         });
+
+        saveState();
     }
 
     function selectOption(selectedIndex) {
@@ -1437,6 +1510,8 @@
         explanationText.textContent = currentQ.explanation;
         explanationContainer.classList.add('show');
         nextBtn.classList.remove('hidden');
+
+        saveState();
     }
 
     function nextQuestion() {
@@ -1449,6 +1524,7 @@
     }
 
     function showResults() {
+        clearSavedState();
         quizScreen.classList.remove('active');
         resultsScreen.classList.add('active');
         finalScore.textContent = `${score} / ${questionsData.length}`;
